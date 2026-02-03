@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dietitian Maryam | Appointment</title>
+    <link rel="stylesheet" href="appointment.css">
+</head>
+<body>
+
+    <!-- ================= WHATSAPP FLOATING BUTTON ================= -->
+<a href="https://wa.me/923209758905" class="whatsapp-btn" target="_blank" title="Chat on WhatsApp">
+    <img src="images/whatsapp-icon.png" alt="WhatsApp">
+</a>
+
+
+<!-- ================= HEADER ================= -->
+<header>
+    <div class="logo">
+        <h2>Dietitian Maryam</h2>
+    </div>
+
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="services.html">Services</a>
+        <a href="appointment.html">Appointment</a>
+    </nav>
+</header>
+
+<!-- ================= HERO / APPOINTMENT INTRO ================= -->
+<section class="appointment-hero">
+    <h1>Book Your Appointment</h1>
+    <p>Personalized diet consultations to meet your health goals.</p>
+    <img src="images/dietitian-maryam.png" alt="Dietitian Consultation">
+</section>
+
+<!-- ================= APPOINTMENT FORM ================= -->
+<section class="appointment-form-section">
+    <h2>Appointment Form</h2>
+    <p>Fill out the form below and we will get back to you soon.</p>
+
+    <form id="appointmentForm" action="https://formspree.io/f/YOUR_FORM_ID" method="POST">
+        <div class="form-row">
+            <input type="text" name="name" placeholder="Full Name" required>
+            <input type="email" name="email" placeholder="Email" required>
+        </div>
+        <div class="form-row">
+            <input type="text" name="phone" placeholder="Phone Number" required>
+            <select name="goal" required>
+                <option value="">Select Health Goal</option>
+                <option value="weight-loss">Weight Loss</option>
+                <option value="weight-gain">Weight Gain</option>
+                <option value="pcos">PCOS</option>
+                <option value="diabetes">Diabetes</option>
+            </select>
+        </div>
+        <div class="form-row">
+            <input type="date" name="date" required>
+            <input type="time" name="time" required>
+        </div>
+        <textarea name="message" placeholder="Your Message (Optional)"></textarea>
+        <button type="submit">Book Appointment</button>
+    </form>
+</section>
+
+<!-- ================= WHY BOOK AN APPOINTMENT ================= -->
+<section class="why-appointment">
+    <h2>Why Book an Appointment?</h2>
+    <div class="why-cards">
+        <div class="why-card">
+            <h3>One-on-One Consultation</h3>
+        </div>
+        <div class="why-card">
+            <h3>Customized Diet Plans</h3>
+        </div>
+        <div class="why-card">
+            <h3>Online Support</h3>
+        </div>
+        <div class="why-card">
+            <h3>Professional Guidance</h3>
+        </div>
+    </div>
+</section>
+
+<!-- ================= BLOGS SECTION ================= -->
+
+<!-- ================= FOOTER ================= -->
+<footer>
+    <p>© 2026 Dietitian Maryam Shahrukh | All Rights Reserved</p>
+</footer>
+
+<script src="appointment.js"></script>
+</body>
+</html>

@@ -1,0 +1,240 @@
+/* ================= WHATSAPP FLOATING BUTTON ================= */
+.whatsapp-btn {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    width: 60px;
+    height: 60px;
+    background: #25D366;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+    z-index: 1000;
+    transition: 0.3s;
+}
+
+.whatsapp-btn img {
+    width: 35px;
+    height: 35px;
+}
+
+.whatsapp-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+}
+
+
+/* ================= HEADER / NAVBAR ================= */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 50px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(15px);
+    border-radius: 20px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: 0.3s;
+}
+
+header:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+header .logo h2 {
+    color: #27ae60;
+    font-size: 1.8rem;
+    margin: 0;
+    cursor: pointer;
+}
+
+header nav {
+    display: flex;
+    gap: 30px;
+}
+
+header nav a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    font-size: 1rem;
+    padding: 8px 15px;
+    border-radius: 10px;
+    transition: 0.3s;
+}
+
+header nav a:hover {
+    background: rgba(39, 174, 96, 0.2);
+    color: #27ae60;
+}
+
+/* ================= Responsive Header ================= */
+@media (max-width: 1024px) {
+    header {
+        flex-direction: column;
+        padding: 15px 30px;
+    }
+
+    header nav {
+        gap: 15px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+}
+
+
+/* ================= APPOINTMENT HERO ================= */
+.appointment-hero {
+    text-align: center;
+    padding: 100px 50px;
+    background: rgba(39, 174, 96, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    margin: 50px auto;
+}
+
+.appointment-hero h1 {
+    font-size: 2.5rem;
+    color: #27ae60;
+    margin-bottom: 15px;
+}
+
+.appointment-hero p {
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 25px;
+}
+
+.appointment-hero img {
+    width: 300px;
+    border-radius: 20px;
+    margin-top: 20px;
+}
+
+/* ================= APPOINTMENT FORM ================= */
+.appointment-form-section {
+    max-width: 900px;
+    margin: 50px auto;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 40px;
+    border-radius: 20px;
+}
+
+.appointment-form-section h2 {
+    color: #27ae60;
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 2rem;
+}
+
+.appointment-form-section p {
+    text-align: center;
+    color: #555;
+    margin-bottom: 30px;
+}
+
+#appointmentForm {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-row {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+#appointmentForm input,
+#appointmentForm select,
+#appointmentForm textarea {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    background: rgba(255,255,255,0.3);
+    backdrop-filter: blur(5px);
+    font-size: 1rem;
+}
+
+#appointmentForm textarea {
+    min-height: 100px;
+    resize: none;
+}
+
+#appointmentForm button {
+    padding: 15px;
+    border-radius: 50px;
+    background: #27ae60;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.3s;
+    border: none;
+}
+
+#appointmentForm button:hover {
+    background: #1e8449;
+}
+
+/* ================= WHY BOOK APPOINTMENT ================= */
+.why-appointment {
+    padding: 80px 50px;
+    text-align: center;
+}
+
+.why-appointment h2 {
+    color: #27ae60;
+    margin-bottom: 50px;
+}
+
+.why-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 30px;
+    justify-content: center;
+}
+
+.why-card {
+    background: rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+    padding: 25px;
+    border-radius: 20px;
+    max-width: 220px;
+    transition: 0.3s;
+    text-align: center;
+}
+
+.why-card img {
+    width: 80px;
+    margin-bottom: 15px;
+}
+
+.why-card h3 {
+    color: #27ae60;
+    font-size: 1.1rem;
+}
+
+/* Hover animation */
+.why-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+}
+
+/* ================= BLOGS SECTION ================= */
+/* Already defined in Page 1 CSS */
+
+/* ================= RESPONSIVE ================= */
+@media (max-width:1024px){
+    .appointment-hero img { width: 250px; }
+    .form-row { flex-direction: column; }
+    .why-cards { flex-direction: column; align-items: center; }
+}
