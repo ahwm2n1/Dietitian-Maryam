@@ -1,0 +1,784 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Dietitian Maryam</title>
+    
+    <!-- Fonts & Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- ================= SIDEBAR ================= -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <h2>Dietitian <span>Maryam</span></h2>
+                    <p class="admin-badge">Admin Panel</p>
+                </div>
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            
+            <div class="sidebar-user">
+                <div class="user-avatar">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="user-info">
+                    <h4>Administrator</h4>
+                    <p>admin@dietitianmaryam.com</p>
+                </div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <ul>
+                    <li class="nav-item active" data-tab="dashboard">
+                        <a href="#">
+                            <i class="fas fa-home"></i>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-tab="blog">
+                        <a href="#">
+                            <i class="fas fa-newspaper"></i>
+                            <span>Blog Manager</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-tab="certificates">
+                        <a href="#">
+                            <i class="fas fa-certificate"></i>
+                            <span>Certificates</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-tab="services">
+                        <a href="#">
+                            <i class="fas fa-list-check"></i>
+                            <span>Services</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-tab="profile">
+                        <a href="#">
+                            <i class="fas fa-user-pen"></i>
+                            <span>Profile Update</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-tab="appointments">
+                        <a href="#">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>Appointments</span>
+                        </a>
+                    </li>
+                    <li class="nav-item" data-tab="settings">
+                        <a href="#">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                    </li>
+                </ul>
+                
+                <div class="sidebar-footer">
+                    <a href="#" id="logoutBtn">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- ================= MAIN CONTENT ================= -->
+        <main class="main-content" id="mainContent">
+            <!-- Top Header -->
+            <header class="top-header">
+                <div class="header-left">
+                    <button class="mobile-menu-btn" id="mobileMenuBtn">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div class="page-title">
+                        <h1 id="pageTitle">Dashboard</h1>
+                        <p id="pageSubtitle">Welcome back, Admin</p>
+                    </div>
+                </div>
+                
+                <div class="header-right">
+                    <div class="header-search">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search...">
+                    </div>
+                    
+                    <div class="header-notifications">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">3</span>
+                    </div>
+                    
+                    <div class="header-profile">
+                        <img src="https://ui-avatars.com/api/?name=Admin&background=1e6b4c&color=fff" alt="Admin">
+                    </div>
+                </div>
+            </header>
+
+            <!-- ================= DYNAMIC CONTENT AREA ================= -->
+            <div class="content-area" id="contentArea">
+                <!-- Content will be loaded dynamically via JavaScript -->
+            </div>
+        </main>
+    </div>
+
+    <!-- ================= LOGIN MODAL (Hidden by default) ================= -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content login-modal">
+            <div class="login-header">
+                <img src="https://ui-avatars.com/api/?name=DM&background=1e6b4c&color=fff&size=128" alt="Logo">
+                <h2>Admin Login</h2>
+                <p>Dietitian Maryam Dashboard</p>
+            </div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">
+                        <i class="fas fa-user"></i>
+                        Username
+                    </label>
+                    <input type="text" id="username" placeholder="Enter username" value="admin">
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">
+                        <i class="fas fa-lock"></i>
+                        Password
+                    </label>
+                    <input type="password" id="password" placeholder="Enter password" value="admin123">
+                </div>
+                
+                <button type="submit" class="btn-login">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login to Dashboard
+                </button>
+                
+                <div class="login-info">
+                    <p><i class="fas fa-info-circle"></i> Default: admin / admin123</p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= TEMPLATES (Will be cloned by JS) ================= -->
+    <!-- These are hidden templates that will be used to generate content -->
+    
+    <!-- Dashboard Template -->
+    <template id="dashboard-template">
+        <div class="dashboard-stats">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(30, 107, 76, 0.1); color: #1e6b4c;">
+                    <i class="fas fa-newspaper"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalBlogs">0</h3>
+                    <p>Blog Posts</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(220, 38, 38, 0.1); color: #dc2626;">
+                    <i class="fas fa-certificate"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalCertificates">0</h3>
+                    <p>Certificates</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(37, 99, 235, 0.1); color: #2563eb;">
+                    <i class="fas fa-list-check"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalServices">0</h3>
+                    <p>Services</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b;">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <div class="stat-info">
+                    <h3 id="totalAppointments">0</h3>
+                    <p>Appointments</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dashboard-grid">
+            <div class="dashboard-card recent-items">
+                <div class="card-header">
+                    <h3>Recent Appointments</h3>
+                    <a href="#" class="view-all" data-tab="appointments">View All</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="recent-table" id="recentAppointments">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="3" class="text-center">Loading...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="dashboard-card quick-actions">
+                <div class="card-header">
+                    <h3>Quick Actions</h3>
+                </div>
+                <div class="actions-grid">
+                    <button class="quick-action" data-tab="blog" data-action="new">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>New Blog Post</span>
+                    </button>
+                    <button class="quick-action" data-tab="certificates" data-action="new">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>Add Certificate</span>
+                    </button>
+                    <button class="quick-action" data-tab="services" data-action="new">
+                        <i class="fas fa-plus-circle"></i>
+                        <span>New Service</span>
+                    </button>
+                    <button class="quick-action" data-tab="profile">
+                        <i class="fas fa-user-edit"></i>
+                        <span>Update Profile</span>
+                    </button>
+                    <button class="quick-action" id="exportDataBtn">
+                        <i class="fas fa-download"></i>
+                        <span>Export JSON</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dashboard-card recent-updates">
+            <div class="card-header">
+                <h3>Recent Blog Posts</h3>
+                <a href="#" class="view-all" data-tab="blog">Manage Blog</a>
+            </div>
+            <div class="recent-blog-grid" id="recentBlogs">
+                <!-- Dynamic content -->
+            </div>
+        </div>
+    </template>
+
+    <!-- Blog Manager Template -->
+    <template id="blog-template">
+        <div class="content-header">
+            <div class="content-title">
+                <h2>Blog Manager</h2>
+                <p>Create and manage your blog posts</p>
+            </div>
+            <button class="btn-primary" id="addBlogBtn">
+                <i class="fas fa-plus"></i>
+                Add New Post
+            </button>
+        </div>
+        
+        <div class="blog-form-container" id="blogFormContainer" style="display: none;">
+            <div class="form-card">
+                <h3 id="blogFormTitle">Add New Blog Post</h3>
+                <form id="blogForm">
+                    <input type="hidden" id="blogId" value="">
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="blogTitle">Post Title *</label>
+                            <input type="text" id="blogTitle" placeholder="e.g., 5 Ways to Manage PCOS" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="blogImage">Image URL *</label>
+                            <input type="url" id="blogImage" placeholder="https://example.com/image.jpg" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="blogContent">Content *</label>
+                        <textarea id="blogContent" rows="6" placeholder="Write your blog post content here..." required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="blogExcerpt">Excerpt (Short summary)</label>
+                        <textarea id="blogExcerpt" rows="2" placeholder="Brief summary of the post..."></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="blogCategory">Category</label>
+                            <select id="blogCategory">
+                                <option value="weight-loss">Weight Loss</option>
+                                <option value="pcos">PCOS</option>
+                                <option value="diabetes">Diabetes</option>
+                                <option value="nutrition">Nutrition Tips</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="blogDate">Publish Date</label>
+                            <input type="date" id="blogDate">
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" id="cancelBlogForm">Cancel</button>
+                        <button type="submit" class="btn-primary">Save Blog Post</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="blog-list">
+            <div class="table-header">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchBlog" placeholder="Search blog posts...">
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="data-table" id="blogTable">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="blogTableBody">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Preview Section -->
+        <div class="preview-section">
+            <div class="preview-header">
+                <h3><i class="fas fa-eye"></i> Live Preview</h3>
+                <p>How your blog will look on the website</p>
+            </div>
+            <div class="preview-grid" id="blogPreview">
+                <!-- Dynamic preview -->
+            </div>
+        </div>
+    </template>
+
+    <!-- Certificates Template -->
+    <template id="certificates-template">
+        <div class="content-header">
+            <div class="content-title">
+                <h2>Certificates Gallery</h2>
+                <p>Manage your professional certificates</p>
+            </div>
+            <button class="btn-primary" id="addCertificateBtn">
+                <i class="fas fa-plus"></i>
+                Add Certificate
+            </button>
+        </div>
+        
+        <div class="certificate-form-container" id="certificateFormContainer" style="display: none;">
+            <div class="form-card">
+                <h3 id="certificateFormTitle">Add New Certificate</h3>
+                <form id="certificateForm">
+                    <input type="hidden" id="certificateId" value="">
+                    
+                    <div class="form-group">
+                        <label for="certificateTitle">Certificate Title *</label>
+                        <input type="text" id="certificateTitle" placeholder="e.g., MPhil in Human Nutrition" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="certificateImage">Certificate Image URL *</label>
+                        <input type="url" id="certificateImage" placeholder="https://example.com/certificate.jpg" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="certificateIssuer">Issuing Organization</label>
+                        <input type="text" id="certificateIssuer" placeholder="e.g., University of Punjab">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="certificateDate">Issue Date</label>
+                            <input type="date" id="certificateDate">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="certificateExpiry">Expiry Date (if any)</label>
+                            <input type="date" id="certificateExpiry">
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" id="cancelCertificateForm">Cancel</button>
+                        <button type="submit" class="btn-primary">Save Certificate</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="certificates-grid" id="certificatesGrid">
+            <!-- Dynamic certificates will be loaded here -->
+        </div>
+        
+        <div class="preview-section">
+            <div class="preview-header">
+                <h3><i class="fas fa-eye"></i> Gallery Preview</h3>
+            </div>
+            <div class="preview-gallery" id="certificatesPreview">
+                <!-- Dynamic preview -->
+            </div>
+        </div>
+    </template>
+
+    <!-- Services Template -->
+    <template id="services-template">
+        <div class="content-header">
+            <div class="content-title">
+                <h2>Services Manager</h2>
+                <p>Manage your nutrition services</p>
+            </div>
+            <button class="btn-primary" id="addServiceBtn">
+                <i class="fas fa-plus"></i>
+                Add New Service
+            </button>
+        </div>
+        
+        <div class="service-form-container" id="serviceFormContainer" style="display: none;">
+            <div class="form-card">
+                <h3 id="serviceFormTitle">Add New Service</h3>
+                <form id="serviceForm">
+                    <input type="hidden" id="serviceId" value="">
+                    
+                    <div class="form-group">
+                        <label for="serviceIcon">Icon Class *</label>
+                        <div class="icon-selector">
+                            <input type="text" id="serviceIcon" placeholder="e.g., fa-utensils" value="fa-utensils" required>
+                            <div class="icon-preview">
+                                <i class="fas fa-utensils"></i>
+                            </div>
+                        </div>
+                        <p class="help-text">Use Font Awesome icon classes (e.g., fa-utensils, fa-female, fa-heartbeat)</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="serviceTitle">Service Title *</label>
+                        <input type="text" id="serviceTitle" placeholder="e.g., PCOS Management" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="serviceDescription">Description *</label>
+                        <textarea id="serviceDescription" rows="4" placeholder="Describe this service..." required></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="servicePrice">Price (PKR)</label>
+                            <input type="text" id="servicePrice" placeholder="e.g., 10,000">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="serviceDuration">Duration</label>
+                            <input type="text" id="serviceDuration" placeholder="e.g., 1 month">
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary" id="cancelServiceForm">Cancel</button>
+                        <button type="submit" class="btn-primary">Save Service</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div class="services-list" id="servicesList">
+            <!-- Dynamic services will be loaded here -->
+        </div>
+        
+        <div class="preview-section">
+            <div class="preview-header">
+                <h3><i class="fas fa-eye"></i> Services Preview</h3>
+            </div>
+            <div class="preview-services" id="servicesPreview">
+                <!-- Dynamic preview -->
+            </div>
+        </div>
+    </template>
+
+    <!-- Profile Update Template -->
+    <template id="profile-template">
+        <div class="content-header">
+            <div class="content-title">
+                <h2>Profile Settings</h2>
+                <p>Update your profile information</p>
+            </div>
+        </div>
+        
+        <div class="profile-container">
+            <div class="profile-grid">
+                <div class="profile-image-section">
+                    <div class="form-card">
+                        <h3>Profile Image</h3>
+                        <div class="profile-image-preview" id="profileImagePreview">
+                            <img src="https://ui-avatars.com/api/?name=Maryam&background=1e6b4c&color=fff&size=200" alt="Profile" id="profileImageDisplay">
+                        </div>
+                        <div class="form-group">
+                            <label for="profileImageUrl">Image URL</label>
+                            <input type="url" id="profileImageUrl" placeholder="Enter image URL">
+                        </div>
+                        <button class="btn-secondary" id="updateProfileImage">
+                            <i class="fas fa-sync-alt"></i>
+                            Update Image
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="profile-info-section">
+                    <div class="form-card">
+                        <h3>Profile Information</h3>
+                        
+                        <div class="form-group">
+                            <label for="profileName">Full Name</label>
+                            <input type="text" id="profileName" value="Dietitian Maryam">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="profileTitle">Title/Designation</label>
+                            <input type="text" id="profileTitle" value="Certified Clinical Nutritionist">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="profileBio">Bio / Description</label>
+                            <textarea id="profileBio" rows="6">Certified Clinical Nutritionist helping women in Pakistan lose weight without starving, manage PCOS & diabetes through personalized diet plans.</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="profileEmail">Email Address</label>
+                            <input type="email" id="profileEmail" value="dnmaryamshahrukh@gmail.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="profilePhone">Phone Number</label>
+                            <input type="text" id="profilePhone" value="+92 320 9758905">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="profileWhatsApp">WhatsApp Number</label>
+                            <input type="text" id="profileWhatsApp" value="923209758905">
+                        </div>
+                        
+                        <button class="btn-primary" id="saveProfileBtn">
+                            <i class="fas fa-save"></i>
+                            Save Profile Changes
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="preview-section">
+                <div class="preview-header">
+                    <h3><i class="fas fa-eye"></i> Profile Preview (How you appear on website)</h3>
+                </div>
+                <div class="profile-preview-card">
+                    <div class="preview-left">
+                        <img src="https://ui-avatars.com/api/?name=Maryam&background=1e6b4c&color=fff&size=150" alt="Preview" id="previewImage">
+                    </div>
+                    <div class="preview-right">
+                        <h2 id="previewName">Dietitian Maryam</h2>
+                        <p id="previewTitle">Certified Clinical Nutritionist</p>
+                        <p id="previewBio">Certified Clinical Nutritionist helping women in Pakistan lose weight without starving, manage PCOS & diabetes through personalized diet plans.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <!-- Appointments Template -->
+    <template id="appointments-template">
+        <div class="content-header">
+            <div class="content-title">
+                <h2>Appointments</h2>
+                <p>Manage all consultation bookings</p>
+            </div>
+            <button class="btn-secondary" id="refreshAppointments">
+                <i class="fas fa-sync-alt"></i>
+                Refresh
+            </button>
+        </div>
+        
+        <div class="appointments-filters">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchAppointments" placeholder="Search by name or email...">
+            </div>
+            
+            <div class="filter-options">
+                <select id="appointmentStatus">
+                    <option value="all">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="completed">Completed</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+                
+                <select id="appointmentDateFilter">
+                    <option value="all">All Dates</option>
+                    <option value="today">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="table-responsive">
+            <table class="data-table" id="appointmentsTable">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Service</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="appointmentsTableBody">
+                    <!-- Dynamic appointments will be loaded here -->
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="export-section">
+            <button class="btn-primary" id="exportAppointmentsBtn">
+                <i class="fas fa-file-export"></i>
+                Export Appointments to JSON
+            </button>
+        </div>
+    </template>
+
+    <!-- Settings Template -->
+    <template id="settings-template">
+        <div class="content-header">
+            <div class="content-title">
+                <h2>Settings</h2>
+                <p>Configure admin panel and website settings</p>
+            </div>
+        </div>
+        
+        <div class="settings-grid">
+            <div class="settings-card">
+                <h3><i class="fas fa-database"></i> Data Management</h3>
+                <div class="settings-actions">
+                    <button class="btn-primary" id="exportAllData">
+                        <i class="fas fa-download"></i>
+                        Export All Data (JSON)
+                    </button>
+                    
+                    <button class="btn-secondary" id="importDataBtn">
+                        <i class="fas fa-upload"></i>
+                        Import Data
+                    </button>
+                    
+                    <button class="btn-danger" id="resetDataBtn">
+                        <i class="fas fa-trash-alt"></i>
+                        Reset to Default
+                    </button>
+                </div>
+                <p class="settings-note">Export data to update your main website's data file.</p>
+            </div>
+            
+            <div class="settings-card">
+                <h3><i class="fas fa-shield-alt"></i> Security</h3>
+                <div class="form-group">
+                    <label for="adminPassword">Change Admin Password</label>
+                    <input type="password" id="adminPassword" placeholder="New password">
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input type="password" id="confirmPassword" placeholder="Confirm new password">
+                </div>
+                <button class="btn-primary" id="changePasswordBtn">
+                    <i class="fas fa-key"></i>
+                    Update Password
+                </button>
+            </div>
+            
+            <div class="settings-card">
+                <h3><i class="fas fa-palette"></i> Appearance</h3>
+                <div class="form-group">
+                    <label for="themeColor">Theme Color</label>
+                    <input type="color" id="themeColor" value="#1e6b4c">
+                </div>
+                <div class="form-group">
+                    <label for="sidebarPosition">Sidebar Position</label>
+                    <select id="sidebarPosition">
+                        <option value="left">Left</option>
+                        <option value="right">Right</option>
+                    </select>
+                </div>
+                <button class="btn-primary" id="saveAppearanceBtn">
+                    <i class="fas fa-save"></i>
+                    Save Appearance
+                </button>
+            </div>
+            
+            <div class="settings-card">
+                <h3><i class="fas fa-code"></i> Integration</h3>
+                <p>Copy the generated JSON to update your website's data file.</p>
+                <textarea id="exportJsonData" rows="10" readonly></textarea>
+                <button class="btn-primary" id="copyJsonBtn">
+                    <i class="fas fa-copy"></i>
+                    Copy to Clipboard
+                </button>
+            </div>
+        </div>
+    </template>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal" id="deleteModal">
+        <div class="modal-content delete-modal">
+            <div class="modal-header">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h3>Confirm Delete</h3>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this item? This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="cancelDelete">Cancel</button>
+                <button class="btn-danger" id="confirmDelete">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success/Error Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- JavaScript -->
+    <script src="admin.js"></script>
+</body>
+</html>
