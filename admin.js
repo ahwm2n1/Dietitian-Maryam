@@ -1,5 +1,5 @@
-// ================= ADMIN PANEL JAVASCRIPT =================
-// Complete functionality for Dietitian Maryam Admin Panel
+// ================= COMPLETE UPDATED ADMIN.JS =================
+// Full functionality with working appointments
 
 class AdminPanel {
     constructor() {
@@ -21,6 +21,18 @@ class AdminPanel {
         this.checkAuth();
         this.setupEventListeners();
         this.loadTemplates();
+        
+        // Listen for storage events (when appointment form adds data)
+        window.addEventListener('storage', (e) => {
+            if (e.key === 'admin_appointments') {
+                console.log('Appointments updated in another tab, refreshing...');
+                this.data.appointments = JSON.parse(e.newValue) || [];
+                if (this.currentTab === 'appointments') {
+                    this.renderAppointmentsTable();
+                }
+                this.updateDashboardStats();
+            }
+        });
     }
 
     // ================= DATA MANAGEMENT =================
@@ -33,6 +45,7 @@ class AdminPanel {
         this.data.appointments = JSON.parse(localStorage.getItem('admin_appointments')) || this.getDefaultAppointments();
         
         this.saveAllData();
+        console.log('Data loaded. Appointments:', this.data.appointments.length);
     }
 
     getDefaultBlog() {
@@ -138,8 +151,10 @@ class AdminPanel {
                 date: '2024-04-15',
                 time: '10:00 AM',
                 service: 'PCOS Consultation',
+                serviceText: 'PCOS Consultation - PKR 8,000',
                 status: 'pending',
-                message: 'Need help with irregular periods'
+                message: 'Need help with irregular periods',
+                submittedAt: '2024-04-01T10:30:00.000Z'
             },
             {
                 id: 'a2',
@@ -148,9 +163,11 @@ class AdminPanel {
                 phone: '0333-9876543',
                 date: '2024-04-16',
                 time: '2:00 PM',
-                service: 'Weight Loss Program',
+                service: 'weight-loss-program',
+                serviceText: 'Weight Loss Program - PKR 5,000',
                 status: 'confirmed',
-                message: 'Want to lose 10kg in 2 months'
+                message: 'Want to lose 10kg in 2 months',
+                submittedAt: '2024-04-02T15:20:00.000Z'
             }
         ];
     }
@@ -161,6 +178,9 @@ class AdminPanel {
         localStorage.setItem('admin_services', JSON.stringify(this.data.services));
         localStorage.setItem('admin_profile', JSON.stringify(this.data.profile));
         localStorage.setItem('admin_appointments', JSON.stringify(this.data.appointments));
+        
+        // Dispatch storage event for other tabs
+        window.dispatchEvent(new Event('storage'));
     }
 
     // ================= AUTHENTICATION =================
@@ -190,7 +210,6 @@ class AdminPanel {
     }
 
     handleLogin(username, password) {
-        // Simple static authentication (in production, use proper auth)
         if (username === 'admin' && password === 'admin123') {
             sessionStorage.setItem('admin_logged_in', 'true');
             this.currentUser = 'admin';
@@ -362,35 +381,39 @@ class AdminPanel {
 
     // ================= DASHBOARD =================
     loadDashboard() {
-        // Update stats
-        document.getElementById('totalBlogs').textContent = this.data.blog.length;
-        document.getElementById('totalCertificates').textContent = this.data.certificates.length;
-        document.getElementById('totalServices').textContent = this.data.services.length;
-        document.getElementById('totalAppointments').textContent = this.data.appointments.length;
-
+        this.updateDashboardStats();
+        
         // Load recent appointments
         const recentAppointments = this.data.appointments.slice(0, 5);
         const tbody = document.querySelector('#recentAppointments tbody');
         if (tbody) {
-            tbody.innerHTML = recentAppointments.map(app => `
-                <tr>
-                    <td>${app.name}</td>
-                    <td>${app.date}</td>
-                    <td><span class="status ${app.status}">${app.status}</span></td>
-                </tr>
-            `).join('');
+            if (recentAppointments.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; padding: 20px;">No appointments yet</td></tr>`;
+            } else {
+                tbody.innerHTML = recentAppointments.map(app => `
+                    <tr>
+                        <td>${app.name}</td>
+                        <td>${app.date}</td>
+                        <td><span class="status ${app.status}">${app.status}</span></td>
+                    </tr>
+                `).join('');
+            }
         }
 
         // Load recent blogs
         const recentBlogs = this.data.blog.slice(0, 3);
         const recentBlogsContainer = document.getElementById('recentBlogs');
         if (recentBlogsContainer) {
-            recentBlogsContainer.innerHTML = recentBlogs.map(blog => `
-                <div class="recent-blog-item">
-                    <img src="${blog.image}" alt="${blog.title}">
-                    <h4>${blog.title}</h4>
-                </div>
-            `).join('');
+            if (recentBlogs.length === 0) {
+                recentBlogsContainer.innerHTML = '<p>No blog posts yet</p>';
+            } else {
+                recentBlogsContainer.innerHTML = recentBlogs.map(blog => `
+                    <div class="recent-blog-item">
+                        <img src="${blog.image}" alt="${blog.title}">
+                        <h4>${blog.title}</h4>
+                    </div>
+                `).join('');
+            }
         }
 
         // Quick actions
@@ -416,6 +439,18 @@ class AdminPanel {
                 this.exportAllData();
             });
         }
+    }
+
+    updateDashboardStats() {
+        const totalBlogs = document.getElementById('totalBlogs');
+        const totalCertificates = document.getElementById('totalCertificates');
+        const totalServices = document.getElementById('totalServices');
+        const totalAppointments = document.getElementById('totalAppointments');
+        
+        if (totalBlogs) totalBlogs.textContent = this.data.blog.length;
+        if (totalCertificates) totalCertificates.textContent = this.data.certificates.length;
+        if (totalServices) totalServices.textContent = this.data.services.length;
+        if (totalAppointments) totalAppointments.textContent = this.data.appointments.length;
     }
 
     // ================= BLOG MANAGER =================
@@ -444,9 +479,14 @@ class AdminPanel {
         const tbody = document.getElementById('blogTableBody');
         if (!tbody) return;
 
+        if (this.data.blog.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 40px;">No blog posts yet</td></tr>`;
+            return;
+        }
+
         tbody.innerHTML = this.data.blog.map(blog => `
             <tr>
-                <td><img src="${blog.image}" alt="${blog.title}" class="blog-thumb"></td>
+                <td><img src="${blog.image}" alt="${blog.title}" class="blog-thumb" onerror="this.src='https://via.placeholder.com/60'"></td>
                 <td>${blog.title}</td>
                 <td><span class="status ${blog.category}">${blog.category}</span></td>
                 <td>${blog.date || 'N/A'}</td>
@@ -466,6 +506,11 @@ class AdminPanel {
         const preview = document.getElementById('blogPreview');
         if (!preview) return;
 
+        if (this.data.blog.length === 0) {
+            preview.innerHTML = '<p>No blogs to preview</p>';
+            return;
+        }
+
         preview.innerHTML = this.data.blog.slice(0, 3).map(blog => `
             <div class="preview-card">
                 <img src="${blog.image}" alt="${blog.title}" style="width:100%; height:150px; object-fit:cover; border-radius:10px;">
@@ -481,7 +526,6 @@ class AdminPanel {
         const form = document.getElementById('blogForm');
         
         if (blogId) {
-            // Edit mode
             const blog = this.data.blog.find(b => b.id === blogId);
             if (blog) {
                 formTitle.textContent = 'Edit Blog Post';
@@ -494,7 +538,6 @@ class AdminPanel {
                 document.getElementById('blogDate').value = blog.date || '';
             }
         } else {
-            // Add mode
             formTitle.textContent = 'Add New Blog Post';
             form.reset();
             document.getElementById('blogId').value = '';
@@ -517,14 +560,12 @@ class AdminPanel {
         };
 
         if (document.getElementById('blogId').value) {
-            // Update existing
             const index = this.data.blog.findIndex(b => b.id === blogData.id);
             if (index !== -1) {
                 this.data.blog[index] = blogData;
                 this.showToast('success', 'Blog Updated', 'Blog post has been updated successfully');
             }
         } else {
-            // Add new
             this.data.blog.push(blogData);
             this.showToast('success', 'Blog Added', 'New blog post has been added successfully');
         }
@@ -533,7 +574,7 @@ class AdminPanel {
         document.getElementById('blogFormContainer').style.display = 'none';
         this.renderBlogTable();
         this.renderBlogPreview();
-        this.loadDashboard(); // Update dashboard stats
+        this.updateDashboardStats();
     }
 
     editBlog(id) {
@@ -546,7 +587,7 @@ class AdminPanel {
             this.saveAllData();
             this.renderBlogTable();
             this.renderBlogPreview();
-            this.loadDashboard();
+            this.updateDashboardStats();
             this.showToast('success', 'Blog Deleted', 'Blog post has been deleted successfully');
         });
     }
@@ -578,10 +619,15 @@ class AdminPanel {
         const grid = document.getElementById('certificatesGrid');
         if (!grid) return;
 
+        if (this.data.certificates.length === 0) {
+            grid.innerHTML = '<p style="text-align: center; grid-column: span 3;">No certificates yet</p>';
+            return;
+        }
+
         grid.innerHTML = this.data.certificates.map(cert => `
             <div class="certificate-card">
                 <div class="certificate-image">
-                    <img src="${cert.image}" alt="${cert.title}">
+                    <img src="${cert.image}" alt="${cert.title}" onerror="this.src='https://via.placeholder.com/300x200'">
                 </div>
                 <div class="certificate-info">
                     <h3>${cert.title}</h3>
@@ -602,6 +648,11 @@ class AdminPanel {
     renderCertificatesPreview() {
         const preview = document.getElementById('certificatesPreview');
         if (!preview) return;
+
+        if (this.data.certificates.length === 0) {
+            preview.innerHTML = '<p>No certificates to preview</p>';
+            return;
+        }
 
         preview.innerHTML = this.data.certificates.slice(0, 4).map(cert => `
             <img src="${cert.image}" alt="${cert.title}" title="${cert.title}">
@@ -659,7 +710,7 @@ class AdminPanel {
         document.getElementById('certificateFormContainer').style.display = 'none';
         this.renderCertificatesGrid();
         this.renderCertificatesPreview();
-        this.loadDashboard();
+        this.updateDashboardStats();
     }
 
     editCertificate(id) {
@@ -672,7 +723,7 @@ class AdminPanel {
             this.saveAllData();
             this.renderCertificatesGrid();
             this.renderCertificatesPreview();
-            this.loadDashboard();
+            this.updateDashboardStats();
             this.showToast('success', 'Certificate Deleted', 'Certificate has been deleted successfully');
         });
     }
@@ -696,17 +747,25 @@ class AdminPanel {
         });
 
         // Icon preview update
-        document.getElementById('serviceIcon').addEventListener('input', (e) => {
-            const iconPreview = document.querySelector('.icon-preview i');
-            if (iconPreview) {
-                iconPreview.className = `fas ${e.target.value}`;
-            }
-        });
+        const serviceIcon = document.getElementById('serviceIcon');
+        if (serviceIcon) {
+            serviceIcon.addEventListener('input', (e) => {
+                const iconPreview = document.querySelector('.icon-preview i');
+                if (iconPreview) {
+                    iconPreview.className = `fas ${e.target.value}`;
+                }
+            });
+        }
     }
 
     renderServicesList() {
         const list = document.getElementById('servicesList');
         if (!list) return;
+
+        if (this.data.services.length === 0) {
+            list.innerHTML = '<p style="text-align: center;">No services yet</p>';
+            return;
+        }
 
         list.innerHTML = this.data.services.map(service => `
             <div class="service-card">
@@ -737,6 +796,11 @@ class AdminPanel {
         const preview = document.getElementById('servicesPreview');
         if (!preview) return;
 
+        if (this.data.services.length === 0) {
+            preview.innerHTML = '<p>No services to preview</p>';
+            return;
+        }
+
         preview.innerHTML = this.data.services.slice(0, 2).map(service => `
             <div style="display:flex; gap:15px; background:white; padding:15px; border-radius:10px;">
                 <i class="fas ${service.icon}" style="font-size:2rem; color:#1e6b4c;"></i>
@@ -764,7 +828,6 @@ class AdminPanel {
                 document.getElementById('servicePrice').value = service.price;
                 document.getElementById('serviceDuration').value = service.duration;
                 
-                // Update icon preview
                 const iconPreview = document.querySelector('.icon-preview i');
                 if (iconPreview) {
                     iconPreview.className = `fas ${service.icon}`;
@@ -775,7 +838,6 @@ class AdminPanel {
             form.reset();
             document.getElementById('serviceId').value = '';
             
-            // Reset icon preview
             const iconPreview = document.querySelector('.icon-preview i');
             if (iconPreview) {
                 iconPreview.className = 'fas fa-utensils';
@@ -811,7 +873,7 @@ class AdminPanel {
         document.getElementById('serviceFormContainer').style.display = 'none';
         this.renderServicesList();
         this.renderServicesPreview();
-        this.loadDashboard();
+        this.updateDashboardStats();
     }
 
     editService(id) {
@@ -824,7 +886,7 @@ class AdminPanel {
             this.saveAllData();
             this.renderServicesList();
             this.renderServicesPreview();
-            this.loadDashboard();
+            this.updateDashboardStats();
             this.showToast('success', 'Service Deleted', 'Service has been deleted successfully');
         });
     }
@@ -834,110 +896,282 @@ class AdminPanel {
         const profile = this.data.profile;
         
         // Populate form fields
-        document.getElementById('profileImageUrl').value = profile.image;
-        document.getElementById('profileName').value = profile.name;
-        document.getElementById('profileTitle').value = profile.title;
-        document.getElementById('profileBio').value = profile.bio;
-        document.getElementById('profileEmail').value = profile.email;
-        document.getElementById('profilePhone').value = profile.phone;
-        document.getElementById('profileWhatsApp').value = profile.whatsapp;
+        const profileImageUrl = document.getElementById('profileImageUrl');
+        const profileName = document.getElementById('profileName');
+        const profileTitle = document.getElementById('profileTitle');
+        const profileBio = document.getElementById('profileBio');
+        const profileEmail = document.getElementById('profileEmail');
+        const profilePhone = document.getElementById('profilePhone');
+        const profileWhatsApp = document.getElementById('profileWhatsApp');
+        
+        if (profileImageUrl) profileImageUrl.value = profile.image || '';
+        if (profileName) profileName.value = profile.name || '';
+        if (profileTitle) profileTitle.value = profile.title || '';
+        if (profileBio) profileBio.value = profile.bio || '';
+        if (profileEmail) profileEmail.value = profile.email || '';
+        if (profilePhone) profilePhone.value = profile.phone || '';
+        if (profileWhatsApp) profileWhatsApp.value = profile.whatsapp || '';
         
         // Update preview
-        document.getElementById('profileImageDisplay').src = profile.image;
-        document.getElementById('previewImage').src = profile.image;
-        document.getElementById('previewName').textContent = profile.name;
-        document.getElementById('previewTitle').textContent = profile.title;
-        document.getElementById('previewBio').textContent = profile.bio;
+        const profileImageDisplay = document.getElementById('profileImageDisplay');
+        const previewImage = document.getElementById('previewImage');
+        const previewName = document.getElementById('previewName');
+        const previewTitle = document.getElementById('previewTitle');
+        const previewBio = document.getElementById('previewBio');
+        
+        if (profileImageDisplay) profileImageDisplay.src = profile.image || 'https://via.placeholder.com/150';
+        if (previewImage) previewImage.src = profile.image || 'https://via.placeholder.com/150';
+        if (previewName) previewName.textContent = profile.name || 'Dietitian Maryam';
+        if (previewTitle) previewTitle.textContent = profile.title || 'Certified Clinical Nutritionist';
+        if (previewBio) previewBio.textContent = profile.bio || '';
 
         // Update image button
-        document.getElementById('updateProfileImage').addEventListener('click', () => {
-            const newImage = document.getElementById('profileImageUrl').value;
-            if (newImage) {
-                document.getElementById('profileImageDisplay').src = newImage;
-                document.getElementById('previewImage').src = newImage;
-            }
-        });
+        const updateProfileImage = document.getElementById('updateProfileImage');
+        if (updateProfileImage) {
+            updateProfileImage.addEventListener('click', () => {
+                const newImage = document.getElementById('profileImageUrl')?.value;
+                if (newImage) {
+                    if (profileImageDisplay) profileImageDisplay.src = newImage;
+                    if (previewImage) previewImage.src = newImage;
+                }
+            });
+        }
 
         // Save profile button
-        document.getElementById('saveProfileBtn').addEventListener('click', () => {
-            this.saveProfile();
-        });
+        const saveProfileBtn = document.getElementById('saveProfileBtn');
+        if (saveProfileBtn) {
+            saveProfileBtn.addEventListener('click', () => {
+                this.saveProfile();
+            });
+        }
 
         // Live preview updates
-        document.getElementById('profileName').addEventListener('input', (e) => {
-            document.getElementById('previewName').textContent = e.target.value;
-        });
+        if (profileName) {
+            profileName.addEventListener('input', (e) => {
+                if (previewName) previewName.textContent = e.target.value;
+            });
+        }
 
-        document.getElementById('profileTitle').addEventListener('input', (e) => {
-            document.getElementById('previewTitle').textContent = e.target.value;
-        });
+        if (profileTitle) {
+            profileTitle.addEventListener('input', (e) => {
+                if (previewTitle) previewTitle.textContent = e.target.value;
+            });
+        }
 
-        document.getElementById('profileBio').addEventListener('input', (e) => {
-            document.getElementById('previewBio').textContent = e.target.value;
-        });
+        if (profileBio) {
+            profileBio.addEventListener('input', (e) => {
+                if (previewBio) previewBio.textContent = e.target.value;
+            });
+        }
     }
 
     saveProfile() {
         this.data.profile = {
-            image: document.getElementById('profileImageUrl').value,
-            name: document.getElementById('profileName').value,
-            title: document.getElementById('profileTitle').value,
-            bio: document.getElementById('profileBio').value,
-            email: document.getElementById('profileEmail').value,
-            phone: document.getElementById('profilePhone').value,
-            whatsapp: document.getElementById('profileWhatsApp').value
+            image: document.getElementById('profileImageUrl')?.value || '',
+            name: document.getElementById('profileName')?.value || '',
+            title: document.getElementById('profileTitle')?.value || '',
+            bio: document.getElementById('profileBio')?.value || '',
+            email: document.getElementById('profileEmail')?.value || '',
+            phone: document.getElementById('profilePhone')?.value || '',
+            whatsapp: document.getElementById('profileWhatsApp')?.value || ''
         };
 
         this.saveAllData();
         this.showToast('success', 'Profile Updated', 'Profile has been updated successfully');
     }
 
-    // ================= APPOINTMENTS MANAGER =================
+    // ================= COMPLETE APPOINTMENTS MANAGER =================
     loadAppointmentsManager() {
         this.renderAppointmentsTable();
         
-        document.getElementById('refreshAppointments').addEventListener('click', () => {
-            this.renderAppointmentsTable();
-        });
+        const refreshBtn = document.getElementById('refreshAppointments');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', () => {
+                this.refreshAppointments();
+            });
+        }
 
-        document.getElementById('exportAppointmentsBtn').addEventListener('click', () => {
-            this.exportAppointments();
-        });
+        const exportBtn = document.getElementById('exportAppointmentsBtn');
+        if (exportBtn) {
+            exportBtn.addEventListener('click', () => {
+                this.exportAppointments();
+            });
+        }
 
         // Filters
-        document.getElementById('appointmentStatus').addEventListener('change', () => {
-            this.filterAppointments();
-        });
+        const statusFilter = document.getElementById('appointmentStatus');
+        if (statusFilter) {
+            statusFilter.addEventListener('change', () => {
+                this.filterAppointments();
+            });
+        }
 
-        document.getElementById('appointmentDateFilter').addEventListener('change', () => {
-            this.filterAppointments();
-        });
+        const dateFilter = document.getElementById('appointmentDateFilter');
+        if (dateFilter) {
+            dateFilter.addEventListener('change', () => {
+                this.filterAppointments();
+            });
+        }
+
+        // Search
+        const searchInput = document.getElementById('searchAppointments');
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                this.filterAppointments(e.target.value);
+            });
+        }
+    }
+
+    refreshAppointments() {
+        // Reload from localStorage
+        const stored = localStorage.getItem('admin_appointments');
+        if (stored) {
+            this.data.appointments = JSON.parse(stored);
+        }
+        this.renderAppointmentsTable();
+        this.showToast('success', 'Refreshed', 'Appointments list updated');
     }
 
     renderAppointmentsTable() {
         const tbody = document.getElementById('appointmentsTableBody');
         if (!tbody) return;
 
-        tbody.innerHTML = this.data.appointments.map((app, index) => `
-            <tr>
-                <td>${app.id}</td>
-                <td>${app.name}</td>
-                <td>${app.email}</td>
-                <td>${app.phone}</td>
-                <td>${app.date}</td>
-                <td>${app.time}</td>
-                <td>${app.service}</td>
-                <td><span class="status ${app.status}">${app.status}</span></td>
-                <td>
-                    <button class="action-btn edit-btn" onclick="adminPanel.updateAppointmentStatus('${app.id}', 'confirmed')">
-                        <i class="fas fa-check-circle"></i>
-                    </button>
-                    <button class="action-btn delete-btn" onclick="adminPanel.deleteAppointment('${app.id}')">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
-        `).join('');
+        // Always get fresh data
+        const stored = localStorage.getItem('admin_appointments');
+        if (stored) {
+            this.data.appointments = JSON.parse(stored);
+        }
+
+        console.log('Rendering appointments table. Total:', this.data.appointments.length);
+
+        if (this.data.appointments.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="9" style="text-align: center; padding: 60px 20px;">
+                        <i class="fas fa-calendar-times" style="font-size: 3rem; color: #ccc; margin-bottom: 15px;"></i>
+                        <p style="color: #666; font-size: 1.1rem;">No appointments yet</p>
+                        <p style="color: #999; font-size: 0.9rem;">Appointments from the website will appear here</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+
+        tbody.innerHTML = this.data.appointments.map((app, index) => {
+            // Ensure all fields exist with defaults
+            const safeApp = {
+                id: app.id || `app_${index}`,
+                name: app.name || 'Unknown',
+                email: app.email || 'No email',
+                phone: app.phone || 'No phone',
+                date: app.date || 'No date',
+                time: app.time || 'No time',
+                service: app.serviceText || app.service || 'No service',
+                status: app.status || 'pending',
+                message: app.message || '',
+                submittedAt: app.submittedAt || new Date().toISOString()
+            };
+            
+            // Format date for display
+            const displayDate = new Date(safeApp.date).toLocaleDateString('en-PK', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+            
+            return `
+                <tr>
+                    <td>${(safeApp.id).substring(0, 8)}...</td>
+                    <td>${safeApp.name}</td>
+                    <td>${safeApp.email}</td>
+                    <td>${safeApp.phone}</td>
+                    <td>${displayDate}</td>
+                    <td>${safeApp.time}</td>
+                    <td>${safeApp.service}</td>
+                    <td>
+                        <select class="status-select" onchange="adminPanel.updateAppointmentStatus('${safeApp.id}', this.value)">
+                            <option value="pending" ${safeApp.status === 'pending' ? 'selected' : ''}>⏳ Pending</option>
+                            <option value="confirmed" ${safeApp.status === 'confirmed' ? 'selected' : ''}>✅ Confirmed</option>
+                            <option value="completed" ${safeApp.status === 'completed' ? 'selected' : ''}>🎉 Completed</option>
+                            <option value="cancelled" ${safeApp.status === 'cancelled' ? 'selected' : ''}>❌ Cancelled</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button class="action-btn view-btn" onclick="adminPanel.viewAppointment('${safeApp.id}')" title="View Details">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn delete-btn" onclick="adminPanel.deleteAppointment('${safeApp.id}')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        }).join('');
+    }
+
+    viewAppointment(id) {
+        const appointment = this.data.appointments.find(a => a.id === id);
+        if (!appointment) return;
+        
+        // Create modal
+        const modal = document.createElement('div');
+        modal.className = 'modal active';
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        `;
+        
+        const formattedDate = new Date(appointment.date).toLocaleDateString('en-PK', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        
+        const submittedDate = appointment.submittedAt ? 
+            new Date(appointment.submittedAt).toLocaleString('en-PK') : 'Unknown';
+        
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 500px; width: 90%; background: white; border-radius: 15px; overflow: hidden;">
+                <div style="background: linear-gradient(135deg, #1e6b4c 0%, #0f4f36 100%); color: white; padding: 20px;">
+                    <h3 style="margin: 0; font-size: 1.3rem;">Appointment Details</h3>
+                    <p style="margin: 5px 0 0; opacity: 0.9;">ID: ${appointment.id.substring(0, 12)}</p>
+                </div>
+                <div style="padding: 25px;">
+                    <div style="display: grid; gap: 15px;">
+                        <div><strong>👤 Name:</strong> ${appointment.name}</div>
+                        <div><strong>📧 Email:</strong> ${appointment.email}</div>
+                        <div><strong>📞 Phone:</strong> ${appointment.phone}</div>
+                        <div><strong>🛎️ Service:</strong> ${appointment.serviceText || appointment.service}</div>
+                        <div><strong>📅 Date:</strong> ${formattedDate}</div>
+                        <div><strong>⏰ Time:</strong> ${appointment.time}</div>
+                        <div><strong>📝 Message:</strong> ${appointment.message || 'No message'}</div>
+                        <div><strong>📊 Status:</strong> <span class="status ${appointment.status}">${appointment.status}</span></div>
+                        <div><strong>🕐 Submitted:</strong> ${submittedDate}</div>
+                    </div>
+                </div>
+                <div style="padding: 20px; border-top: 1px solid #eee; text-align: right;">
+                    <button class="btn-secondary" onclick="this.closest('.modal').remove()">Close</button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Close when clicking outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.remove();
+            }
+        });
     }
 
     updateAppointmentStatus(id, status) {
@@ -946,6 +1180,7 @@ class AdminPanel {
             app.status = status;
             this.saveAllData();
             this.renderAppointmentsTable();
+            this.updateDashboardStats();
             this.showToast('success', 'Status Updated', `Appointment marked as ${status}`);
         }
     }
@@ -955,13 +1190,87 @@ class AdminPanel {
             this.data.appointments = this.data.appointments.filter(a => a.id !== id);
             this.saveAllData();
             this.renderAppointmentsTable();
-            this.loadDashboard();
+            this.updateDashboardStats();
             this.showToast('success', 'Appointment Deleted', 'Appointment has been deleted successfully');
         });
     }
 
-    filterAppointments() {
-        // Implement appointment filtering
+    filterAppointments(searchTerm = '') {
+        const tbody = document.getElementById('appointmentsTableBody');
+        if (!tbody) return;
+
+        const statusFilter = document.getElementById('appointmentStatus')?.value || 'all';
+        const dateFilter = document.getElementById('appointmentDateFilter')?.value || 'all';
+        
+        let filteredApps = [...this.data.appointments];
+        
+        // Filter by status
+        if (statusFilter !== 'all') {
+            filteredApps = filteredApps.filter(app => app.status === statusFilter);
+        }
+        
+        // Filter by date
+        if (dateFilter !== 'all') {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            filteredApps = filteredApps.filter(app => {
+                const appDate = new Date(app.date);
+                appDate.setHours(0, 0, 0, 0);
+                
+                switch(dateFilter) {
+                    case 'today':
+                        return appDate.getTime() === today.getTime();
+                    case 'week':
+                        const weekAgo = new Date(today);
+                        weekAgo.setDate(weekAgo.getDate() - 7);
+                        return appDate >= weekAgo;
+                    case 'month':
+                        const monthAgo = new Date(today);
+                        monthAgo.setMonth(monthAgo.getMonth() - 1);
+                        return appDate >= monthAgo;
+                    default:
+                        return true;
+                }
+            });
+        }
+        
+        // Filter by search term
+        if (searchTerm) {
+            const term = searchTerm.toLowerCase();
+            filteredApps = filteredApps.filter(app => 
+                app.name?.toLowerCase().includes(term) ||
+                app.email?.toLowerCase().includes(term) ||
+                app.phone?.includes(term) ||
+                app.service?.toLowerCase().includes(term)
+            );
+        }
+        
+        // Render filtered results
+        if (filteredApps.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 40px;">No matching appointments found</td></tr>`;
+        } else {
+            tbody.innerHTML = filteredApps.map(app => `
+                <tr>
+                    <td>${app.id.substring(0, 8)}...</td>
+                    <td>${app.name}</td>
+                    <td>${app.email}</td>
+                    <td>${app.phone}</td>
+                    <td>${new Date(app.date).toLocaleDateString()}</td>
+                    <td>${app.time}</td>
+                    <td>${app.serviceText || app.service}</td>
+                    <td><span class="status ${app.status}">${app.status}</span></td>
+                    <td>
+                        <button class="action-btn view-btn" onclick="adminPanel.viewAppointment('${app.id}')">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn delete-btn" onclick="adminPanel.deleteAppointment('${app.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
     }
 
     // ================= SETTINGS MANAGER =================
@@ -1017,6 +1326,8 @@ class AdminPanel {
         a.download = `appointments_${new Date().toISOString().split('T')[0]}.json`;
         a.click();
         URL.revokeObjectURL(url);
+        
+        this.showToast('success', 'Export Successful', 'Appointments exported');
     }
 
     updateExportJson() {
@@ -1046,7 +1357,6 @@ class AdminPanel {
             this.updateExportJson();
             this.showToast('success', 'Reset Complete', 'All data has been reset to default');
             
-            // Reload current tab
             this.loadContent(this.currentTab);
         }, 'Reset All Data?', 'This will delete all your current data and restore defaults. This cannot be undone!');
     }
@@ -1065,10 +1375,8 @@ class AdminPanel {
             return;
         }
         
-        // In a real app, this would be sent to server
         this.showToast('success', 'Password Updated', 'Admin password has been changed (demo only)');
         
-        // Clear fields
         document.getElementById('adminPassword').value = '';
         document.getElementById('confirmPassword').value = '';
     }
@@ -1077,10 +1385,8 @@ class AdminPanel {
         const themeColor = document.getElementById('themeColor').value;
         const sidebarPos = document.getElementById('sidebarPosition').value;
         
-        // Apply theme color
         document.documentElement.style.setProperty('--primary', themeColor);
         
-        // Apply sidebar position
         const sidebar = document.querySelector('.sidebar');
         if (sidebarPos === 'right') {
             document.querySelector('.admin-container').style.flexDirection = 'row-reverse';
@@ -1111,7 +1417,6 @@ class AdminPanel {
 
         container.appendChild(toast);
 
-        // Auto remove after 5 seconds
         setTimeout(() => {
             if (toast.parentElement) {
                 toast.remove();
@@ -1172,13 +1477,17 @@ let adminPanel;
 
 document.addEventListener('DOMContentLoaded', () => {
     adminPanel = new AdminPanel();
-    
-    // Make adminPanel globally accessible for inline onclick handlers
     window.adminPanel = adminPanel;
+    
+    // Add manual refresh function for debugging
+    window.refreshAppointments = function() {
+        if (adminPanel) {
+            adminPanel.refreshAppointments();
+        }
+    };
 });
 
 // ================= EXPORT FOR MAIN WEBSITE =================
-// Function to get data for main website
 function getWebsiteData() {
     return {
         blog: JSON.parse(localStorage.getItem('admin_blog')) || [],
@@ -1189,5 +1498,4 @@ function getWebsiteData() {
     };
 }
 
-// Make available globally
 window.getWebsiteData = getWebsiteData;
